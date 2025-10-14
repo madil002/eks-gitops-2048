@@ -12,6 +12,22 @@ variable "subnets" {
   }
 }
 
+variable "public_subnet_tags" {
+  type = map(string)
+  default = {
+    "kubernetes.io/cluster/eks-2048" = "shared"
+    "kubernetes.io/role/elb"         = 1
+  }
+}
+
+variable "private_subnet_tags" {
+  type = map(string)
+  default = {
+    "kubernetes.io/cluster/eks-2048"  = "shared"
+    "kubernetes.io/role/internal-elb" = 1
+  }
+}
+
 # variable "endpoints" {
 #   type    = list(string)
 #   default = ["com.amazonaws.eu-west-2.ecr.dkr", "com.amazonaws.eu-west-2.ecr.api"]

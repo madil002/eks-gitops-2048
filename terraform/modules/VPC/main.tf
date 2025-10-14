@@ -16,7 +16,7 @@ resource "aws_subnet" "all" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = each.value.cidr
   availability_zone = each.value.az
-  tags              = { Name = each.key }
+  tags              = merge({ Name = each.key }, each.value.type == "public" ? var.public_subnet_tags : var.private_subnet_tags)
 }
 
 resource "aws_route_table" "public" {
