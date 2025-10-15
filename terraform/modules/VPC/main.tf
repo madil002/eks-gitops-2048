@@ -19,6 +19,16 @@ resource "aws_subnet" "all" {
   tags              = merge({ Name = each.key }, each.value.type == "public" ? var.public_subnet_tags : var.private_subnet_tags)
 }
 
+resource "aws_eip" "nat" {
+  domain = "vpc"
+}
+
+resource "aws_nat_gateway" "main" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.all["public_a"].id
+  depends_on    = [aws_internet_gateway.main]
+}
+
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
   route {
@@ -30,44 +40,15 @@ resource "aws_route_table" "public" {
 
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
-  tags   = { Name = "private_rt" }
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.main.id
+  }
+  tags = { Name = "private_rt" }
 }
 
 resource "aws_route_table_association" "all" {
-  for_each = var.subnets
-
+  for_each       = var.subnets
   subnet_id      = aws_subnet.all[each.key].id
   route_table_id = each.value.type == "public" ? aws_route_table.public.id : aws_route_table.private.id
-}
-
-# resource "aws_vpc_endpoint" "ec2" {
-#   count             = length(var.endpoints)
-#   vpc_id            = aws_vpc.main.id
-#   service_name      = var.endpoints[count.index]
-#   vpc_endpoint_type = "Interface"
-
-#   subnet_ids         = [for key, subnet in aws_subnet.all : subnet.id if var.subnets[key].type == "private"]
-#   security_group_ids = []
-
-#   private_dns_enabled = true
-# }
-
-resource "aws_security_group" "endpoint" {
-  name        = "endpoint"
-  description = "SG for VPC Endpoint ENI"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [aws_vpc.main.cidr_block]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 }
