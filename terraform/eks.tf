@@ -13,7 +13,19 @@ resource "aws_eks_cluster" "main" {
     endpoint_public_access  = true
     endpoint_private_access = false
     public_access_cidrs     = ["0.0.0.0/0"]
+    security_group_ids      = [aws_security_group.eks_cluster.id]
   }
+}
+
+resource "aws_eks_addon" "all" {
+  count        = length(var.eks_addons)
+  cluster_name = aws_eks_cluster.main.name
+  addon_name   = var.eks_addons[count.index]
+}
+
+variable "eks_addons" {
+  type    = list(string)
+  default = ["kube-proxy", "vpc-cni"]
 }
 
 resource "aws_iam_role" "cluster" {
@@ -36,4 +48,24 @@ resource "aws_iam_role" "cluster" {
 resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSClusterPolicy" {
   role       = aws_iam_role.cluster.id
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+}
+
+resource "aws_security_group" "eks_cluster" {
+  name        = "eks-cluster-sg"
+  description = "EKS Cluster Security Group"
+  vpc_id      = module.VPC.vpc_id
+
+  ingress {
+    description = "Allow worker nodes to communicate with cluster API"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
