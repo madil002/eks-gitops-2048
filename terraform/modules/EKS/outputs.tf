@@ -6,5 +6,9 @@ output "cluster_sg_id" {
 }
 
 output "cluster_endpoint" {
-  value = aws_eks_cluster.main.vpc_config[0].endpoint_public_access
+  value = aws_eks_cluster.main.endpoint
+}
+
+output "cluster_certificate_authority_data" {
+  value = aws_eks_cluster.main.certificate_authority
 }
