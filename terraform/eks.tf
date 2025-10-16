@@ -13,7 +13,6 @@ resource "aws_eks_cluster" "main" {
     endpoint_public_access  = true
     endpoint_private_access = false
     public_access_cidrs     = ["0.0.0.0/0"]
-    security_group_ids      = [aws_security_group.eks_cluster.id]
   }
 }
 
@@ -50,22 +49,11 @@ resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSClusterPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
-resource "aws_security_group" "eks_cluster" {
-  name        = "eks-cluster-sg"
-  description = "EKS Cluster Security Group"
-  vpc_id      = module.VPC.vpc_id
-
-  ingress {
-    description = "Allow worker nodes to communicate with cluster API"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "node_to_cluster" {
+  type                     = "ingress"
+  to_port                  = "443"
+  from_port                = "443"
+  protocol                 = "tcp"
+  security_group_id        = aws_eks_cluster.main.vpc_config[0].cluster_security_group_id
+  source_security_group_id = aws_security_group.eks_node.id
 }

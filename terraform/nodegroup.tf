@@ -5,7 +5,6 @@ resource "aws_eks_node_group" "main" {
   subnet_ids      = module.VPC.private_subnets
 
   instance_types = ["t3.medium"]
-  disk_size      = 20
   ami_type       = "AL2023_x86_64_STANDARD"
 
   scaling_config {
@@ -14,12 +13,27 @@ resource "aws_eks_node_group" "main" {
     min_size     = 1
   }
 
+  launch_template {
+    id      = aws_launch_template.eks_nodes.id
+    version = "$Latest" # Identifier for most recent version of the launch template
+  }
+
   update_config {
     max_unavailable = 1
   }
+}
 
-  remote_access {
-    source_security_group_ids = [aws_security_group.eks_node.id]
+resource "aws_launch_template" "eks_nodes" {
+  name_prefix            = "eks-nodes-"
+  vpc_security_group_ids = [aws_security_group.eks_node.id]
+
+  block_device_mappings {
+    device_name = "/dev/sdf"
+    ebs {
+      volume_size           = 20
+      volume_type           = "gp3"
+      delete_on_termination = true
+    }
   }
 }
 
@@ -46,15 +60,6 @@ resource "aws_iam_role_policy_attachment" "node_group_policies" {
   policy_arn = var.node_group_policies[count.index]
 }
 
-variable "node_group_policies" {
-  type = list(string)
-  default = [
-    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
-    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
-    "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  ]
-}
-
 resource "aws_security_group" "eks_node" {
   name        = "eks-nodes-sg"
   description = "Security group for EKS worker nodes"
@@ -73,7 +78,7 @@ resource "aws_security_group" "eks_node" {
     from_port       = 0
     to_port         = 0
     protocol        = "-1"
-    security_groups = [aws_security_group.eks_cluster.id]
+    security_groups = [aws_eks_cluster.main.vpc_config[0].cluster_security_group_id]
   }
 
   egress {
