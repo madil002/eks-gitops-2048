@@ -15,7 +15,7 @@ resource "aws_eks_node_group" "main" {
 
   launch_template {
     id      = aws_launch_template.eks_nodes.id
-    version = "$Latest" # Identifier for most recent version of the launch template
+    version = "1"
   }
 
   update_config {

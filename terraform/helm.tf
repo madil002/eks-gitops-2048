@@ -11,3 +11,23 @@ resource "helm_release" "nginx_ingress" {
     "${file("values/nginx-ingress.yaml")}"
   ]
 }
+
+resource "helm_release" "cert_manager" {
+  name       = "cert-manager"
+  repository = "https://charts.jetstack.io"
+  chart      = "cert-manager"
+
+  create_namespace = true
+  namespace        = "cert-manager"
+
+  values = [
+    "${file("values/cert-manager.yaml")}"
+  ]
+
+  set = [
+    {
+      name  = "crds.enabled"
+      value = "true"
+    }
+  ]
+}
