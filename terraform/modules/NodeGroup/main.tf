@@ -1,8 +1,8 @@
 resource "aws_eks_node_group" "main" {
-  cluster_name    = aws_eks_cluster.main.name
+  cluster_name    = var.eks_cluster_name
   node_group_name = "eks-node-group"
   node_role_arn   = aws_iam_role.eks_node_group.arn
-  subnet_ids      = module.VPC.private_subnets
+  subnet_ids      = var.private_subnets
 
   instance_types = ["t3.medium"]
   ami_type       = "AL2023_x86_64_STANDARD"
@@ -63,7 +63,7 @@ resource "aws_iam_role_policy_attachment" "node_group_policies" {
 resource "aws_security_group" "eks_node" {
   name        = "eks-nodes-sg"
   description = "Security group for EKS worker nodes"
-  vpc_id      = module.VPC.vpc_id
+  vpc_id      = var.vpc_id
 
   ingress {
     description = "Allow node-to-node communication"
@@ -78,7 +78,7 @@ resource "aws_security_group" "eks_node" {
     from_port       = 0
     to_port         = 0
     protocol        = "-1"
-    security_groups = [aws_eks_cluster.main.vpc_config[0].cluster_security_group_id]
+    security_groups = [var.eks_cluster_sg_id]
   }
 
   egress {

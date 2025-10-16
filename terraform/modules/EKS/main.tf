@@ -9,7 +9,7 @@ resource "aws_eks_cluster" "main" {
   version  = "1.34"
 
   vpc_config {
-    subnet_ids              = module.VPC.public_subnets
+    subnet_ids              = var.public_subnets
     endpoint_public_access  = true
     endpoint_private_access = false
     public_access_cidrs     = ["0.0.0.0/0"]
@@ -20,11 +20,6 @@ resource "aws_eks_addon" "all" {
   count        = length(var.eks_addons)
   cluster_name = aws_eks_cluster.main.name
   addon_name   = var.eks_addons[count.index]
-}
-
-variable "eks_addons" {
-  type    = list(string)
-  default = ["kube-proxy", "vpc-cni"]
 }
 
 resource "aws_iam_role" "cluster" {
@@ -55,5 +50,5 @@ resource "aws_security_group_rule" "node_to_cluster" {
   from_port                = "443"
   protocol                 = "tcp"
   security_group_id        = aws_eks_cluster.main.vpc_config[0].cluster_security_group_id
-  source_security_group_id = aws_security_group.eks_node.id
+  source_security_group_id = var.eks_node_sg_id
 }
