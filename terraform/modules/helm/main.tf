@@ -44,3 +44,18 @@ resource "helm_release" "external_dns" {
     "${file("${path.module}/values/external-dns.yaml")}"
   ]
 }
+
+resource "helm_release" "argocd" {
+  name       = "argo-cd"
+  repository = "https://argoproj.github.io/argo-helm/"
+  chart      = "argo-cd"
+  version    = "8.6.4"
+  timeout    = "600"
+
+  create_namespace = true
+  namespace        = "argo-cd"
+
+  values = [
+    "${file("${path.module}/values/argocd.yaml")}"
+  ]
+}
