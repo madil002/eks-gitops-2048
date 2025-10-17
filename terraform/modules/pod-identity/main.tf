@@ -85,7 +85,7 @@ resource "aws_iam_role" "external_dns" {
 # https://github.com/kubernetes-sigs/external-dns/blob/master/docs/tutorials/aws.md#iam-policy
 resource "aws_iam_role_policy" "external_dns_route53" {
   name = "external-dns-route53"
-  role = aws_iam_role.cert_manager.id
+  role = aws_iam_role.external_dns.id
 
   policy = jsonencode({
     Version = "2012-10-17"

@@ -60,6 +60,26 @@ resource "aws_iam_role_policy_attachment" "node_group_policies" {
   policy_arn = var.node_group_policies[count.index]
 }
 
+resource "aws_iam_role_policy" "pod_identity_agent" {
+  name = "AmazonEKS_PodIdentityAgentPolicy"
+  role = aws_iam_role.eks_node_group.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "eks-auth:AssumePodIdentityRole",
+          "eks-auth:AuthenticatePodIdentity"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+
 resource "aws_security_group" "eks_node" {
   name        = "eks-nodes-sg"
   description = "Security group for EKS worker nodes"
