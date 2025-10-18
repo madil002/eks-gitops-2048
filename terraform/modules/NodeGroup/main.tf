@@ -79,6 +79,14 @@ resource "aws_iam_role_policy" "pod_identity_agent" {
   })
 }
 
+resource "aws_security_group_rule" "node_to_cluster" {
+  type                     = "ingress"
+  to_port                  = "443"
+  from_port                = "443"
+  protocol                 = "tcp"
+  security_group_id        = var.eks_cluster_sg_id
+  source_security_group_id = aws_security_group.eks_node.id
+}
 
 resource "aws_security_group" "eks_node" {
   name        = "eks-nodes-sg"
@@ -99,6 +107,14 @@ resource "aws_security_group" "eks_node" {
     to_port         = 0
     protocol        = "-1"
     security_groups = [var.eks_cluster_sg_id]
+  }
+
+  ingress {
+    description = "Allow NodePort range from VPC"
+    from_port   = 30000
+    to_port     = 32767
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
   }
 
   egress {

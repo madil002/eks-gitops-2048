@@ -49,7 +49,7 @@ resource "helm_release" "argocd" {
   name       = "argo-cd"
   repository = "https://argoproj.github.io/argo-helm/"
   chart      = "argo-cd"
-  version    = "8.6.4"
+  version    = "5.19.15"
   timeout    = "600"
 
   create_namespace = true
@@ -58,4 +58,6 @@ resource "helm_release" "argocd" {
   values = [
     "${file("${path.module}/values/argocd.yaml")}"
   ]
+
+  depends_on = [helm_release.cert_manager]
 }

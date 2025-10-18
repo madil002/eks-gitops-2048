@@ -43,12 +43,3 @@ resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSClusterPolicy" {
   role       = aws_iam_role.cluster.id
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
-
-resource "aws_security_group_rule" "node_to_cluster" {
-  type                     = "ingress"
-  to_port                  = "443"
-  from_port                = "443"
-  protocol                 = "tcp"
-  security_group_id        = aws_eks_cluster.main.vpc_config[0].cluster_security_group_id
-  source_security_group_id = var.eks_node_sg_id
-}
