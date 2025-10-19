@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game-2048
+  labels:
+    app: game-2048
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: game-2048
+  template:
+    metadata:
+      labels:
+        app: game-2048
+    spec:
+      containers:
+        - name: game-2048
+          image: 418272778807.dkr.ecr.eu-west-2.amazonaws.com/2048:latest
+          ports:
+            - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: game-2048-service
+spec:
+  selector:
+    app: game-2048
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 3000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: game-2048-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: issuer
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: 2048.lab.madil.co.uk
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: game-2048-service
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - 2048.lab.madil.co.uk
+      secretName: game-2048-tls

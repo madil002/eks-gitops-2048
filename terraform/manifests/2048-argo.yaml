@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: apps
+  namespace: argo-cd
+spec:
+  project: default
+
+  source:
+    repoURL: 'https://github.com/madil002/eks-gitops-2048'
+    targetRevision: HEAD
+    path: terraform/manifests
+
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: '2048'
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
