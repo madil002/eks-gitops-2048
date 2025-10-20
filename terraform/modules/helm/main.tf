@@ -59,5 +59,21 @@ resource "helm_release" "argocd" {
     "${file("${path.module}/values/argocd.yaml")}"
   ]
 
-  depends_on = [helm_release.cert_manager]
+  depends_on = [helm_release.nginx_ingress, helm_release.cert_manager, helm_release.external_dns]
+}
+
+resource "helm_release" "kube_prometheus_stack" {
+  name       = "kube-prometheus-stack"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  chart      = "kube-prometheus-stack"
+  version    = "78.3.1"
+
+  create_namespace = true
+  namespace        = "monitoring"
+
+  values = [
+    "${file("${path.module}/values/kube-prometheus-stack.yaml")}"
+  ]
+
+  depends_on = [helm_release.nginx_ingress, helm_release.cert_manager, helm_release.external_dns]
 }

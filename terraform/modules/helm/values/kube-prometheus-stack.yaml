@@ -1,0 +1,25 @@
+grafana:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: issuer
+    hosts:
+      - grafana.lab.madil.co.uk
+    tls:
+      - secretName: grafana-tls
+        hosts:
+          - grafana.lab.madil.co.uk
+
+prometheus:
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "issuer"
+    hosts:
+      - prometheus.lab.madil.co.uk
+    tls:
+      - hosts:
+          - prometheus.lab.madil.co.uk
+        secretName: prometheus-tls
