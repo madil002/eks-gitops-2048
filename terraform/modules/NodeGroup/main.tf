@@ -110,11 +110,11 @@ resource "aws_security_group" "eks_node" {
   }
 
   ingress {
-    description = "Allow NodePort range from VPC"
+    description = "Allow HTTP/HTTPS from Internet for ingress-nginx"
     from_port   = 30000
     to_port     = 32767
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
