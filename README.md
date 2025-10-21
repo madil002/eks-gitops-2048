@@ -1,4 +1,10 @@
-# EKS-GitOps-2048
+# 🚀 EKS-GitOps-2048
+
+This project deploys a **production-ready Kubernetes platform** on **Amazon EKS** (Elastic Kubernetes Service) with infrastructure managed through **Terraform** and workloads deployed via **Helm**. The solution provisions a secure, scalable, and observable environment with an **NGINX Ingress Controller** for external routing, **cert-manager** for automated TLS certificates, **External-DNS** for Route53 DNS management, and **ArgoCD** for **GitOps-based** continuous delivery.
+
+**Prometheus** and **Grafana** provide comprehensive **observability** and **monitoring** across the cluster, enabling real-time insight into **system health**, **resource usage**, and **application performance**. This setup ensures infrastructure and application deployments are consistent, secure, and fully automated, delivering a **resilient** Kubernetes environment accessible through a custom domain over **HTTPS**.
+
+As a demonstration workload, the classic **2048 web game** is deployed onto the EKS cluster via **ArgoCD**, showcasing end-to-end automation from infrastructure provisioning to application delivery.
 
 ## 🏗️ Architecture Diagram:
 
