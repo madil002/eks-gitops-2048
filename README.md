@@ -1,10 +1,14 @@
-# 🚀 EKS-GitOps-2048
+# 🚀 EKS 2048 – Production-Ready GitOps Deployment on Kubernetes
 
 This project deploys a **production-ready Kubernetes platform** on **Amazon EKS** (Elastic Kubernetes Service) with infrastructure managed through **Terraform** and workloads deployed via **Helm**. The solution provisions a secure, scalable, and observable environment with an **NGINX Ingress Controller** for external routing, **cert-manager** for automated TLS certificates, **External-DNS** for Route53 DNS management, and **ArgoCD** for **GitOps-based** continuous delivery.
 
 **Prometheus** and **Grafana** provide comprehensive **observability** and **monitoring** across the cluster, enabling real-time insight into **system health**, **resource usage**, and **application performance**. This setup ensures infrastructure and application deployments are consistent, secure, and fully automated, delivering a **resilient** Kubernetes environment accessible through a custom domain over **HTTPS**.
 
 As a demonstration workload, the classic **2048 web game** is deployed onto the EKS cluster via **ArgoCD**, showcasing end-to-end automation from infrastructure provisioning to application delivery.
+
+<p align="center">
+  <img src="images/2048_cert.png" alt="architechtural diagram" style="width:600px"/>
+</p>
 
 ## 🏗️ Architecture Diagram:
 
@@ -14,7 +18,7 @@ As a demonstration workload, the classic **2048 web game** is deployed onto the 
 
 ## 📁 Project Structure
 ```
-└── ECS-URL-SHORTENER
+└── EKS-GITOPS-2048
     ├── pre-commit-config.yaml
     ├── app/
     ├── terraform/
@@ -29,23 +33,22 @@ As a demonstration workload, the classic **2048 web game** is deployed onto the 
     │        ├── pod-identity/
     │        └── helm/
     └── .github/workflows/
-           ├── 
-           ├── 
+           ├── tf-apply-destroy.yaml
+           ├── tf-lint-scan-plan.yaml
            └── docker-build-push.yaml
 ```
 
 ## 🏗️ Architecture
 #### Key Components:
 
-- **ECS Fargate**: Runs Python app containers inside private subnets for secure, scalable compute.
-- **AWS WAF**: Protects against malicious input using AWS Managed Rules.
-- **CodeDeploy**: Enables blue/green deployments with automatic rollback on health check failures.
-- **GitHub Actions + OIDC**: Implements secure CI/CD pipelines without long-lived AWS credentials.
-- **VPC Endpoints**: Provides private access to AWS services, avoiding NAT gateway costs.
-- **DynamoDB**: Stores short-to-long URL mappings with pay-per-request billing and point-in-time recovery (PITR).
-- **Application Load Balancer (ALB)**: Handles HTTPS termination, routing, and health checks.
-- **ACM + Route 53**: Issues TLS certificates and maps a custom domain
-- **Code & Container Security**:
-    - **Pre-Commit Hooks & Linting →** Terraform code is automatically formatted and validated before any commit, catching syntax errors and misconfigurations early
-    - **Checkov →** Scans Terraform infrastructure for policy violations and security misconfigurations, ensuring compliance before deployment
-    - **Trivy →** Scans container images for critical and high-severity vulnerabilities before they are pushed to ECR, preventing insecure images from reaching production
+- **Amazon EKS**: Manages the Kubernetes control plane for secure, scalable container orchestration.
+- **EKS Managed Node Groups**: Run worker nodes in private subnets with automatic scaling and updates.
+- **EKS Pod Identity**: Provides fine-grained IAM access to pods without node-level credentials, enabling secure AWS API access for services like cert-manager and External-DNS.
+- **Terraform**: Defines and provisions all AWS and Kubernetes infrastructure through infrastructure-as-code.
+- **Helm**: Deploys core Kubernetes components including NGINX Ingress, cert-manager, External-DNS, ArgoCD, and Prometheus/Grafana.
+- **ArgoCD**: Enables GitOps-based continuous delivery, syncing application manifests from Git repositories.
+- **NGINX Ingress Controller**: Routes external traffic into the cluster and handles HTTPS termination.
+- **cert-manager**: Automates TLS certificate issuance and renewal via Let’s Encrypt and Route53 DNS validation.
+- **External-DNS**: Automatically manages Route 53 DNS records for Kubernetes services and ingress resources.
+- **Prometheus & Grafana**: Provide real-time observability, metrics, and dashboards for monitoring cluster health, resource usage, and application performance.
+- **Security & Compliance**: Uses IAM least privilege, private networking, and Terraform scanning tools (TFLint, Checkov) for secure, compliant deployments.
