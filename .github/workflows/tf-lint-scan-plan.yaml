@@ -1,0 +1,88 @@
+name: Terraform lint, scan & plan
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  security-events: write
+
+jobs:
+  terraform-lint-scan-plan:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.3.1
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/GitHubActions
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.13.3"
+      - name: Debug paths
+        run: |
+          pwd
+          ls -R
+
+      - name: Initialise Terraform
+        run: terraform init
+
+      - name: Validate Terraform
+        run: terraform validate
+
+      - name: Format Terraform
+        run: terraform fmt -recursive -check
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+
+      - name: Run TFLint
+        run: |
+          tflint --init
+          tflint --recursive --config $(pwd)/.tflint.hcl --format sarif > tflint.sarif
+        continue-on-error: true
+
+      - name: Upload TFlint sarif results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'terraform/tflint.sarif'
+          wait-for-processing: true
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: ./terraform
+          output_format: cli,sarif
+          output_file_path: console,checkov.sarif
+        continue-on-error: true
+
+      - name: Upload Checkov sarif results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: checkov.sarif
+          wait-for-processing: true
+
+      - name: Plan Terraform
+        run: terraform plan -out=tfplan
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: ./terraform/tfplan
+
+      - name: Show Workflow Run ID
+        run: |
+          echo "## Workflow Run ID: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
