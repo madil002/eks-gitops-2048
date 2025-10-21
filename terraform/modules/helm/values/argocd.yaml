@@ -12,8 +12,8 @@ server:
       nginx.org/hsts: "false"
       cert-manager.io/cluster-issuer: issuer
     hosts:
-      - argocd.lab.madil.co.uk
+      - argocd.eks.madil.co.uk
     tls:
       - secretName: argocd-ingress-tls
         hosts:
-          - argocd.lab.madil.co.uk
+          - argocd.eks.madil.co.uk

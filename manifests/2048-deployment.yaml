@@ -45,7 +45,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: 2048.lab.madil.co.uk
+    - host: 2048.eks.madil.co.uk
       http:
         paths:
           - path: /
@@ -57,5 +57,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - 2048.lab.madil.co.uk
+        - 2048.eks.madil.co.uk
       secretName: game-2048-tls

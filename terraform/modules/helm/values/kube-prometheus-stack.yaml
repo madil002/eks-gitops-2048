@@ -5,11 +5,11 @@ grafana:
     annotations:
       cert-manager.io/cluster-issuer: issuer
     hosts:
-      - grafana.lab.madil.co.uk
+      - grafana.eks.madil.co.uk
     tls:
       - secretName: grafana-tls
         hosts:
-          - grafana.lab.madil.co.uk
+          - grafana.eks.madil.co.uk
 
 prometheus:
   ingress:
@@ -18,8 +18,8 @@ prometheus:
     annotations:
       cert-manager.io/cluster-issuer: "issuer"
     hosts:
-      - prometheus.lab.madil.co.uk
+      - prometheus.eks.madil.co.uk
     tls:
       - hosts:
-          - prometheus.lab.madil.co.uk
+          - prometheus.eks.madil.co.uk
         secretName: prometheus-tls

@@ -9,4 +9,4 @@ serviceAccount:
   name: external-dns
 
 domainFilter:
-  - lab.madil.co.uk
+  - eks.madil.co.uk
