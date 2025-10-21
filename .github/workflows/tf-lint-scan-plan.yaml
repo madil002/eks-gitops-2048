@@ -31,11 +31,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.13.3"
-      - name: Debug paths
-        run: |
-          pwd
-          ls -R
-
+          
       - name: Initialise Terraform
         run: terraform init
 
